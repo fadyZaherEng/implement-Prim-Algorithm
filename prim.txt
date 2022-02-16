@@ -1,0 +1,81 @@
+static string NextNode(Dictionary<string, double> dist, Dictionary<string, bool> visited)
+        {
+            string ret = "";
+            double min = 1e9;
+
+            foreach(var node in visited) // O(V)
+            {
+                if(!node.Value)
+                {
+                    if(dist[node.Key] < min)
+                    {
+                        min = dist[node.Key];
+                        ret = node.Key;
+                    }
+                }
+            }
+
+            return ret;
+        }
+
+        static Dictionary < string, Dictionary <string, double > > prim(Dictionary<string, Dictionary<string, double>> adjList)
+        {
+            Dictionary<string, Dictionary<string, double>> mst = new Dictionary<string, Dictionary<string, double>>();
+            Dictionary<string, double> dist = new Dictionary<string, double>();
+            Dictionary<string, bool> visited = new Dictionary<string, bool>();
+            Dictionary<string, string> parent = new Dictionary<string, string>();
+            double mstCost = 0;
+
+            string currNode = "";
+
+            foreach(var node in adjList) // O(V)
+            {
+                dist.Add(node.Key, 1e9); // infinity
+                visited.Add(node.Key, false);
+                currNode = node.Key;
+            }
+
+            for(int i = 0; i < dist.Count - 1; i ++)  // total O(V^2)
+            {
+                visited[currNode] = true;
+
+                foreach(var node in adjList[currNode])
+                {
+                    if(!visited[node.Key])
+                    {
+                        if (dist[node.Key] > node.Value)
+                        {
+                            dist[node.Key] = node.Value;
+
+                            if (parent.ContainsKey(node.Key))
+                                parent[node.Key] = currNode;
+                            else
+                                parent.Add(node.Key, currNode);
+                        }
+                    }
+                }
+
+               
+                string nextNode = NextNode(dist, visited);
+
+                if (!mst.ContainsKey(parent[nextNode]))
+                    mst.Add(parent[nextNode], new Dictionary<string, double>());
+
+                mst[parent[nextNode]].Add(nextNode, dist[nextNode]);
+                currNode = nextNode;
+                mstCost += dist[nextNode];
+            }
+
+            /*
+            foreach(var node in mst)
+            {
+                foreach(var child in node.Value)
+                {
+                    Console.WriteLine(node.Key + " " + child.Key + " " + child.Value);
+                }
+            }
+
+            Console.WriteLine(mstCost);
+            */
+            return mst;
+        }
